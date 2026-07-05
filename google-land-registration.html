@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Google Land — تسجيل المشاركة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --g-blue:   #4285F4;
+    --g-red:    #EA4335;
+    --g-yellow: #FBBC05;
+    --g-green:  #34A853;
+    --ink:      #16213e;
+    --ink-soft: #3c4664;
+    --page-bg:  #f7f7f2;
+    --paper:    #ffffff;
+    --gray-300: #e2e2da;
+    --gray-500: #8b8d7f;
+    --gray-700: #4a4c40;
+    --shadow:   0 10px 34px rgba(22,33,62,.09);
+    --shadow-lift: 0 18px 44px rgba(22,33,62,.16);
+    --radius:   20px;
+    --radius-sm: 11px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--page-bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2.5rem 1rem 4rem;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  .bg-scene { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .bg-scene .dots {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle, rgba(22,33,62,.055) 1.4px, transparent 1.4px) 0 0/24px 24px;
+  }
+  .blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .28; }
+  .blob.b1 { width: 340px; height: 340px; background: var(--g-blue);   top: -90px;  right: -80px; animation: drift1 22s ease-in-out infinite; }
+  .blob.b2 { width: 300px; height: 300px; background: var(--g-yellow); bottom: -60px; left: -90px; animation: drift2 26s ease-in-out infinite; }
+  .blob.b3 { width: 220px; height: 220px; background: var(--g-green);  bottom: 30%;  right: -60px; animation: drift3 19s ease-in-out infinite; }
+  .blob.b4 { width: 180px; height: 180px; background: var(--g-red);    top: 40%;    left: -60px;  opacity: .18; animation: drift1 24s ease-in-out infinite reverse; }
+
+  @keyframes drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-24px, 26px) scale(1.08); } }
+  @keyframes drift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(28px, -18px) scale(1.05); } }
+  @keyframes drift3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-16px, -22px) scale(1.1); } }
+
+  .page { max-width: 640px; margin: 0 auto; position: relative; z-index: 1; }
+  .latin { font-family: 'Poppins', sans-serif; }
+
+  /* شريط GDSC */
+  .gdsc-bar { display: flex; align-items: center; justify-content: center; gap: 9px; margin-bottom: 1.6rem; animation: dropIn .55s cubic-bezier(.2,.8,.2,1) both; }
+  .gdsc-ring { flex-shrink: 0; animation: spinSlow 14s linear infinite; transform-origin: 50% 50%; }
+  .gdsc-word { font-size: 13px; font-weight: 700; letter-spacing: .12em; color: var(--ink-soft); }
+  .gdsc-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--gray-500); }
+  .gdsc-club { font-size: 12.5px; color: var(--gray-500); }
+
+  @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes dropIn { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes riseIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+  .ticket {
+    position: relative;
+    display: flex;
+    background: var(--paper);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    animation: riseIn .6s .05s cubic-bezier(.2,.8,.2,1) both;
+    transition: transform .35s ease, box-shadow .35s ease;
+  }
+  .ticket:hover { transform: translateY(-3px) rotate(-.3deg); box-shadow: var(--shadow-lift); }
+  .ticket-main { flex: 1; padding: 2rem 1.9rem; min-width: 0; }
+  .ticket-stub {
+    width: 100px; flex-shrink: 0;
+    background: linear-gradient(160deg, var(--ink) 0%, #1f2d52 100%);
+    background-image: radial-gradient(circle at 30% 20%, rgba(255,255,255,.09), transparent 60%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    position: relative;
+  }
+  .stub-icon {
+    width: 32px; height: 32px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,.1);
+  }
+  .stub-text {
+    writing-mode: vertical-rl;
+    color: #fff; font-weight: 700; font-size: 12px; letter-spacing: .28em;
+  }
+  .ticket-stub::before, .ticket-stub::after {
+    content: ''; position: absolute; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--page-bg); left: -11px; box-shadow: inset 0 0 0 1px rgba(22,33,62,.04);
+  }
+  .ticket-stub::before { top: -11px; }
+  .ticket-stub::after  { bottom: -11px; }
+  .perf-line {
+    position: absolute; top: 12px; bottom: 12px; left: 100px;
+    border-left: 2px dashed rgba(255,255,255,.5);
+  }
+
+  .badge-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+  .badge { font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 20px; }
+  .badge.solid { background: var(--g-blue); color: #fff; box-shadow: 0 4px 12px rgba(66,133,244,.35); }
+  .badge.tbd { border: 1.4px dashed var(--gray-500); color: var(--gray-700); background: transparent; }
+
+  .ticket-title { font-size: 31px; font-weight: 800; letter-spacing: -.01em; margin-bottom: 4px; }
+  .ticket-title .gl-g { color: var(--g-blue); }
+  .ticket-title .gl-o1 { color: var(--g-red); }
+  .ticket-title .gl-o2 { color: var(--g-yellow); }
+  .ticket-title .gl-g2 { color: var(--g-blue); }
+  .ticket-title .gl-l { color: var(--g-green); }
+  .ticket-title .gl-e { color: var(--g-red); }
+  .ticket-title .gl-land { color: var(--ink); margin-right: 6px; }
+
+  .ticket-sub { font-size: 12.5px; color: var(--gray-500); margin-bottom: 18px; }
+
+  .info-list { display: flex; flex-direction: column; gap: 9px; }
+  .info-row { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--ink-soft); }
+  .info-row.muted { color: var(--gray-500); }
+  .info-row svg { flex-shrink: 0; }
+
+  .notice {
+    background: #fff;
+    border: 1.4px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    padding: 15px 18px;
+    margin-bottom: 1.4rem;
+    font-size: 13px;
+    line-height: 2;
+    color: var(--ink-soft);
+  }
+  .notice-head { display: flex; align-items: center; gap: 7px; font-weight: 700; color: var(--ink); margin-bottom: 4px; font-size: 13px; }
+  .notice ul { list-style: none; }
+  .notice li { position: relative; padding-right: 16px; }
+  .notice li::before { content: ''; position: absolute; right: 0; top: 10px; width: 5px; height: 5px; border-radius: 50%; background: var(--g-yellow); }
+
+  .form-card {
+    background: var(--paper); border-radius: var(--radius); padding: 2rem 1.9rem;
+    box-shadow: var(--shadow); position: relative; overflow: hidden;
+    animation: riseIn .6s .12s cubic-bezier(.2,.8,.2,1) both;
+  }
+  .form-card::before {
+    content: ''; position: absolute; top: 0; right: 0; left: 0; height: 4px;
+    background: linear-gradient(90deg, var(--g-blue) 0 25%, var(--g-red) 25% 50%, var(--g-yellow) 50% 75%, var(--g-green) 75% 100%);
+  }
+
+  .trail { display: flex; align-items: flex-start; margin-bottom: 2.2rem; }
+  .waypoint { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; }
+  .waypoint .dot {
+    width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; border: 2px solid var(--gray-300); color: var(--gray-500); background: var(--paper);
+    transition: all .3s cubic-bezier(.2,.8,.2,1); transform: rotate(45deg);
+  }
+  .waypoint .dot span { transform: rotate(-45deg); }
+  .waypoint .lbl { font-size: 11.5px; color: var(--gray-500); transition: color .25s; font-weight: 600; }
+  .trail-line { flex: 1.4; height: 2px; background: var(--gray-300); margin: 15px 2px 0; position: relative; overflow: hidden; border-radius: 2px; }
+  .trail-line::after {
+    content: ''; position: absolute; inset: 0; background: var(--g-blue); transform: scaleX(0); transform-origin: right;
+    transition: transform .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .waypoint.active .dot { border-color: var(--g-blue); background: var(--g-blue); color: #fff; box-shadow: 0 0 0 6px rgba(66,133,244,.15); animation: dotPulse 1.8s ease-in-out infinite; }
+  .waypoint.active .lbl { color: var(--ink); font-weight: 700; }
+  .waypoint.done .dot { border-color: var(--g-green); background: var(--g-green); color: #fff; }
+  .waypoint.done ~ .trail-line::after, .waypoint.active ~ .trail-line::after { transform: scaleX(1); }
+
+  @keyframes dotPulse { 0%,100% { box-shadow: 0 0 0 6px rgba(66,133,244,.15); } 50% { box-shadow: 0 0 0 9px rgba(66,133,244,.06); } }
+
+  .sec-title { font-size: 11px; font-weight: 700; color: var(--gray-500); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 1.1rem; padding-bottom: 8px; border-bottom: 2px solid #f1f1ea; display: flex; align-items: center; gap: 8px; }
+  .sec-title::before { content: ''; display: inline-block; width: 3px; height: 14px; border-radius: 2px; background: var(--g-blue); }
+
+  .field { margin-bottom: 16px; animation: riseIn .4s both; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--gray-700); margin-bottom: 6px; }
+  .field label .req { color: var(--g-red); margin-right: 2px; }
+  .field input, .field select {
+    width: 100%; padding: 11px 14px; border: 1.5px solid var(--gray-300); border-radius: var(--radius-sm);
+    font-size: 14px; font-family: 'Cairo', sans-serif; color: var(--ink); background: var(--paper); outline: none;
+    transition: border-color .2s, box-shadow .2s, transform .12s; appearance: none;
+  }
+  .field input:focus, .field select:focus { border-color: var(--g-blue); box-shadow: 0 0 0 4px rgba(66,133,244,.13); }
+  .field input.ltr { direction: ltr; }
+  .field .hint { font-size: 12px; color: var(--gray-500); margin-top: 4px; }
+  .field input.error { border-color: var(--g-red); box-shadow: 0 0 0 4px rgba(234,67,53,.1); animation: shake .35s; }
+  @keyframes shake { 20%,60% { transform: translateX(-4px); } 40%,80% { transform: translateX(4px); } }
+  .phone-wrap { display: flex; }
+  .phone-wrap select { width: auto; flex-shrink: 0; border-radius: 0 8px 8px 0; border-left: none; padding: 11px 8px; }
+  .phone-wrap input { border-radius: 8px 0 0 8px; border-right: none; flex: 1; min-width: 0; }
+
+  .type-group { display: flex; gap: 10px; }
+  .type-opt {
+    flex: 1; border: 2px solid var(--gray-300); border-radius: var(--radius-sm); padding: 20px 12px; text-align: center;
+    cursor: pointer; transition: all .22s cubic-bezier(.2,.8,.2,1); user-select: none; position: relative;
+  }
+  .type-opt:hover { border-color: var(--g-blue); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(66,133,244,.14); }
+  .type-opt.selected { border-color: var(--g-blue); background: #eef4ff; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(66,133,244,.16); }
+  .type-opt.selected::after { content: ''; position: absolute; top: 8px; left: 10px; width: 17px; height: 17px; border-radius: 50%; background: var(--g-blue); animation: popIn .25s cubic-bezier(.2,.8,.2,1.4); }
+  .type-opt.selected::before { content: '✓'; position: absolute; top: 7px; left: 13px; font-size: 10px; color: #fff; font-weight: 900; z-index: 1; }
+  @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+  .type-icon { margin-bottom: 9px; display: flex; justify-content: center; transition: transform .22s; }
+  .type-opt:hover .type-icon, .type-opt.selected .type-icon { transform: scale(1.08); }
+  .type-label { font-size: 14.5px; font-weight: 700; color: var(--ink); }
+  .type-desc { font-size: 11px; color: var(--gray-500); margin-top: 3px; line-height: 1.6; }
+  .type-opt input { display: none; }
+
+  .radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .radio-opt {
+    flex: 1; min-width: 60px; border: 2px solid var(--gray-300); border-radius: var(--radius-sm); padding: 11px; text-align: center;
+    cursor: pointer; font-size: 14.5px; font-weight: 700; color: var(--gray-700); transition: all .2s; user-select: none;
+  }
+  .radio-opt:hover { border-color: var(--g-blue); color: var(--g-blue); transform: translateY(-1px); }
+  .radio-opt.selected { border-color: var(--g-blue); background: #eef4ff; color: var(--ink); }
+  .radio-opt input { display: none; }
+
+  .assign-note {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: #f2fbf5; border: 1.4px solid #cdeed9; border-radius: var(--radius-sm);
+    padding: 12px 14px; font-size: 12.5px; color: #1e6b3e; line-height: 1.8; margin-top: 10px;
+    animation: riseIn .35s both;
+  }
+  .complete-note {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: #fff9ec; border: 1.4px solid #f6e3b4; border-radius: var(--radius-sm);
+    padding: 12px 14px; font-size: 12.5px; color: #7a5b00; line-height: 1.8; margin-top: 6px;
+  }
+
+  .member-card {
+    border: 1.5px solid var(--gray-300); border-radius: var(--radius-sm); padding: 1.2rem 1.3rem; margin-bottom: 14px;
+    animation: fadeIn .4s cubic-bezier(.2,.8,.2,1) both; transition: box-shadow .25s, transform .25s;
+  }
+  .member-card:hover { box-shadow: 0 8px 22px rgba(22,33,62,.08); }
+  .member-card.leader { border-color: var(--g-blue); background: #f8fafe; }
+  .member-card.solo-card { border-color: var(--g-green); background: #f6fbf7; }
+  .member-num { font-size: 12px; font-weight: 700; color: var(--ink-soft); margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
+  .chip { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; background: var(--g-blue); color: white; }
+  .chip.solo { background: var(--g-green); }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 1.6rem; }
+  .btn {
+    flex: 1; padding: 13px; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700;
+    font-family: 'Cairo', sans-serif; cursor: pointer; border: none; transition: all .22s cubic-bezier(.2,.8,.2,1);
+    position: relative; overflow: hidden;
+  }
+  .btn-primary { background: var(--ink); color: #fff; }
+  .btn-primary:hover { background: #22315a; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(22,33,62,.3); }
+  .btn-primary:active { transform: translateY(0) scale(.98); }
+  .btn-primary:disabled { opacity: .7; cursor: not-allowed; transform: none; }
+  .btn-secondary { background: var(--paper); color: var(--gray-700); border: 1.5px solid var(--gray-300); }
+  .btn-secondary:hover { background: #f5f5ee; transform: translateY(-2px); }
+  .btn-secondary:active { transform: translateY(0) scale(.98); }
+
+  .success-screen { display: none; text-align: center; padding: 2.6rem 1rem; position: relative; }
+  .confetti-wrap { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .confetti-piece { position: absolute; top: 46%; left: 50%; width: 8px; height: 8px; border-radius: 2px; opacity: 0; }
+  .success-ring {
+    width: 78px; height: 78px; border-radius: 24px; background: var(--g-green); display: flex; align-items: center;
+    justify-content: center; margin: 0 auto 1.3rem; box-shadow: 0 12px 30px rgba(52,168,83,.35);
+    animation: ringIn .55s cubic-bezier(.2,.9,.3,1.4) both;
+  }
+  @keyframes ringIn { from { opacity: 0; transform: scale(.3) rotate(-25deg); } to { opacity: 1; transform: scale(1) rotate(3deg); } }
+  .success-title { font-size: 23px; font-weight: 800; margin-bottom: 8px; animation: riseIn .5s .15s both; }
+  .success-sub { font-size: 14px; color: var(--gray-500); line-height: 1.9; animation: riseIn .5s .22s both; }
+  .success-tag {
+    display: inline-block; margin-top: 1.1rem; padding: 8px 20px; background: #eef4ff; border-radius: 20px;
+    font-size: 13px; font-weight: 700; color: var(--ink); animation: riseIn .5s .3s both;
+  }
+
+  .form-page { display: none; }
+  .form-page.active { display: block; animation: pageIn .4s cubic-bezier(.2,.8,.2,1); }
+  @keyframes pageIn { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: translateX(0); } }
+  .footer-note { text-align: center; font-size: 12px; color: var(--gray-500); margin-top: 1.5rem; }
+
+  @media (max-width: 480px) {
+    .ticket { flex-direction: column-reverse; }
+    .ticket-stub { width: 100%; flex-direction: row; padding: 12px 0; }
+    .stub-text { writing-mode: horizontal-tb; letter-spacing: .18em; }
+    .ticket-stub::before, .ticket-stub::after { top: auto; left: auto; }
+    .ticket-stub::before { right: -11px; top: 50%; transform: translateY(-50%); }
+    .ticket-stub::after { left: -11px; bottom: auto; top: 50%; transform: translateY(-50%); }
+    .perf-line { display: none; }
+    .type-group, .btn-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-scene">
+  <div class="dots"></div>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div class="blob b4"></div>
+</div>
+
+<div class="page">
+
+  <div class="gdsc-bar">
+    <svg class="gdsc-ring" width="20" height="20" viewBox="0 0 100 100">
+      <path d="M50 20 A30 30 0 0 1 80 50" stroke="#4285F4" stroke-width="12" fill="none" stroke-linecap="round"/>
+      <path d="M80 50 A30 30 0 0 1 50 80" stroke="#EA4335" stroke-width="12" fill="none" stroke-linecap="round"/>
+      <path d="M50 80 A30 30 0 0 1 20 50" stroke="#FBBC05" stroke-width="12" fill="none" stroke-linecap="round"/>
+      <path d="M20 50 A30 30 0 0 1 50 20" stroke="#34A853" stroke-width="12" fill="none" stroke-linecap="round"/>
+    </svg>
+    <div class="gdsc-word latin">GDSC</div>
+    <div class="gdsc-sep"></div>
+    <div class="gdsc-club">جامعة النجاح الوطنية</div>
+  </div>
+
+  <!-- التذكرة -->
+  <div class="ticket">
+    <div class="ticket-main">
+      <div class="badge-row">
+        <span class="badge solid">فريق من ٤ أشخاص</span>
+      </div>
+      <div class="ticket-title">
+        <span class="gl-g latin">G</span><span class="gl-o1 latin">o</span><span class="gl-o2 latin">o</span><span class="gl-g2 latin">g</span><span class="gl-l latin">l</span><span class="gl-e latin">e</span><span class="gl-land latin">Land</span>
+      </div>
+      <div class="ticket-sub">فعالية من نادي Google Developer Student Clubs</div>
+      <div class="info-list">
+        <div class="info-row">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="8" r="3" stroke="#16213e" stroke-width="1.8"/><circle cx="17" cy="8" r="3" stroke="#16213e" stroke-width="1.8"/><path d="M2 21c0-3.3 2.7-6 6-6s6 2.7 6 6M12 21c0-2.4 1.3-4.5 3.2-5.5" stroke="#16213e" stroke-width="1.8" stroke-linecap="round"/></svg>
+          المشاركة على شكل فرق، كل فريق مكوّن من ٤ أعضاء
+        </div>
+        <div class="info-row muted">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="#8b8d7f" stroke-width="1.6"/><path d="M3 9h18M8 3v4M16 3v4" stroke="#8b8d7f" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <b>الموعد:</b>&nbsp;<span id="event-date"><!-- ضع التاريخ والوقت هنا --></span>
+        </div>
+        <div class="info-row muted">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 12l-7.6 7.6a2 2 0 0 1-2.8 0L4 14V4h10l6 6a2 2 0 0 1 0 2.8Z" stroke="#8b8d7f" stroke-width="1.6" stroke-linejoin="round"/><circle cx="8.5" cy="8.5" r="1.4" fill="#8b8d7f"/></svg>
+          <b>الرسوم:</b>&nbsp;<span id="event-fee"><!-- ضع قيمة الرسوم هنا --></span>
+        </div>
+      </div>
+    </div>
+    <div class="perf-line"></div>
+    <div class="ticket-stub">
+      <div class="stub-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" fill="#fff" opacity=".9"/></svg>
+      </div>
+      <div class="stub-text latin">GOOGLE LAND</div>
+    </div>
+  </div>
+
+  <div class="form-card">
+
+    <div class="trail" id="trail-bar">
+      <div class="waypoint active" id="step1"><div class="dot"><span>١</span></div><div class="lbl">النوع</div></div>
+      <div class="trail-line"></div>
+      <div class="waypoint" id="step2"><div class="dot"><span>٢</span></div><div class="lbl">البيانات</div></div>
+      <div class="trail-line"></div>
+      <div class="waypoint" id="step3"><div class="dot"><span>٣</span></div><div class="lbl">تأكيد</div></div>
+    </div>
+
+    <!-- صفحة ١ -->
+    <div class="form-page active" id="page1">
+      
+      <div class="field">
+        <div class="type-group">
+          <div class="type-opt" id="type-solo" onclick="selectType('solo')">
+            <input type="radio" name="ptype" value="solo"/>
+            <div class="type-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#16213e" stroke-width="1.8"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" stroke="#16213e" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <div class="type-label">فردي</div>
+            <div class="type-desc">بنضمّك مع فريق</div>
+          </div>
+          <div class="type-opt" id="type-team" onclick="selectType('team')">
+            <input type="radio" name="ptype" value="team"/>
+            <div class="type-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="8" r="3" stroke="#16213e" stroke-width="1.8"/><circle cx="17" cy="8" r="3" stroke="#16213e" stroke-width="1.8"/><path d="M2 21c0-3.3 2.7-6 6-6s6 2.7 6 6M12 21c0-2.4 1.3-4.5 3.2-5.5" stroke="#16213e" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <div class="type-label">فريق</div>
+            <div class="type-desc">سجّل فريقك (حتى ٤)</div>
+          </div>
+        </div>
+
+        <div id="solo-note" class="assign-note" style="display:none;">
+          <span>🧭</span>
+          <span>بما إنك بتسجّل بشكل فردي، رح تنضم لفريق مكوّن من ٤ أشخاص. اكتب اسم الفريق اللي بدك تنضم فيه (أو اسم مقترح)، وبياناتك الشخصية.</span>
+        </div>
+
+        <div id="solo-team-field" class="field" style="display:none; margin-top:14px;">
+          <label>اسم الفريق <span class="req">*</span></label>
+          <input type="text" id="solo-team-name" placeholder="مثال: Code Warriors" />
+        </div>
+      </div>
+
+      <div id="team-section" style="display:none;">
+        <div class="sec-title" style="margin-top:1.4rem;">معلومات الفريق</div>
+        <div class="field">
+          <label>اسم الفريق <span class="req">*</span></label>
+          <input type="text" id="team-name" placeholder="مثال: Code Warriors" />
+        </div>
+
+        <div class="assign-note" style="margin-bottom:14px;">
+          <span>✍️</span>
+          <span>يكفي إن عضو واحد بس من الفريق يعبّي هاد النموذج، وهو يدخل بيانات باقي الأعضاء.</span>
+        </div>
+
+        <div class="field">
+          <label>كم عضو معاك جاهز يسجّل الآن؟ <span class="req">*</span></label>
+          <div class="radio-group" id="count-group">
+            <label class="radio-opt" onclick="selectCount(this,2)"><input type="radio" name="cnt" value="2"/>٢</label>
+            <label class="radio-opt" onclick="selectCount(this,3)"><input type="radio" name="cnt" value="3"/>٣</label>
+            <label class="radio-opt" onclick="selectCount(this,4)"><input type="radio" name="cnt" value="4"/>٤</label>
+          </div>
+          <div class="complete-note">
+            <span>💡</span>
+            <span>إذا كان عدد أعضاء الفريق أقل من ٤، سيتم تكملة العدد الناقص.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goToPage2()">التالي ←</button>
+      </div>
+    </div>
+
+    <!-- صفحة ٢ -->
+    <div class="form-page" id="page2">
+      <div class="sec-title" id="p2-title">بيانات المشاركة</div>
+      <div id="members-container"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goToPage3()">مراجعة وتأكيد ←</button>
+        <button class="btn btn-secondary" onclick="goTo(1)">→ رجوع</button>
+      </div>
+    </div>
+
+    <!-- صفحة ٣ -->
+    <div class="form-page" id="page3">
+      <div class="sec-title">مراجعة البيانات</div>
+      <div id="review-content"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="submitForm()">✓ إرسال التسجيل</button>
+        <button class="btn btn-secondary" onclick="goTo(2)">→ تعديل</button>
+      </div>
+    </div>
+
+    <!-- نجاح -->
+    <div class="success-screen" id="success">
+      <div class="confetti-wrap" id="confetti-wrap"></div>
+      <div class="success-ring">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M4 12.5l5 5L20 7" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="success-title">تم التسجيل بنجاح!</div>
+      <div class="success-sub" id="success-sub">شكراً لتسجيلك في <strong class="latin">Google Land</strong>.<br/>سيتم التواصل معك قريباً بكل التفاصيل.</div>
+      <div class="success-tag" id="success-label"></div>
+    </div>
+
+    <div class="footer-note">GDSC · جامعة النجاح الوطنية</div>
+  </div>
+</div>
+
+<script>
+let pType = '', mCount = 0;
+
+function selectType(t) {
+  pType = t;
+  document.getElementById('type-solo').classList.toggle('selected', t==='solo');
+  document.getElementById('type-team').classList.toggle('selected', t==='team');
+  document.getElementById('solo-note').style.display = t==='solo' ? 'flex' : 'none';
+  document.getElementById('solo-team-field').style.display = t==='solo' ? 'block' : 'none';
+  document.getElementById('team-section').style.display = t==='team' ? 'block' : 'none';
+}
+
+function selectCount(el, n) {
+  document.querySelectorAll('#count-group .radio-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  mCount = n;
+}
+
+function v(id) { return document.getElementById(id)?.value.trim()||''; }
+
+function err(id, msg) {
+  const el = document.getElementById(id);
+  if(el){ el.classList.remove('error'); void el.offsetWidth; el.classList.add('error'); el.focus(); }
+  alert(msg);
+}
+
+function goTo(n) {
+  document.querySelectorAll('.form-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page'+n).classList.add('active');
+  for(let i=1;i<=3;i++){
+    const s=document.getElementById('step'+i);
+    s.classList.remove('active','done');
+    if(i<n) s.classList.add('done');
+    else if(i===n) s.classList.add('active');
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function memberFieldsHTML(i, lead, showEmail) {
+  return `
+    <div class="field"><label>الاسم الكامل <span class="req">*</span></label><input type="text" id="m${i}-name" placeholder="أحمد محمد" /></div>
+    <div class="field"><label>الرقم الجامعي <span class="req">*</span></label><input type="text" id="m${i}-num" class="ltr" inputmode="numeric" placeholder="2023XXXXXXX" /></div>
+    <div class="field"><label>البريد الإلكتروني ${showEmail?'<span class="req">*</span>':''}</label><input type="email" id="m${i}-email" class="ltr" placeholder="name@university.edu" />${lead?'<div class="hint">سيتم التواصل معك على هذا الإيميل</div>':''}</div>
+    <div class="field">
+      <label>رقم الهاتف (واتساب) <span class="req">*</span></label>
+      <div class="phone-wrap">
+        <select id="m${i}-prefix">
+          <option value="970">🇵🇸 +970</option>
+          <option value="972">📱 +972</option>
+        </select>
+        <input type="text" id="m${i}-phone" class="ltr" inputmode="numeric" placeholder="5XXXXXXXX" />
+      </div>
+      <div class="hint">أدخل الرقم بدون مقدمة الدولة</div>
+    </div>`;
+}
+
+function goToPage2() {
+  document.querySelectorAll('.error').forEach(e=>e.classList.remove('error'));
+  if(!pType){ alert('يرجى اختيار نوع التسجيل'); return; }
+
+  if(pType==='solo'){
+    if(!v('solo-team-name')){ err('solo-team-name','يرجى إدخال اسم الفريق'); return; }
+    mCount = 1;
+    document.getElementById('p2-title').textContent='بياناتك الشخصية';
+    document.getElementById('members-container').innerHTML = `
+      <div class="member-card solo-card">
+        <div class="member-num">🧭 بيانات المشارك <span class="chip solo">فردي — بينضم لفريق</span></div>
+        ${memberFieldsHTML(1, true, true)}
+      </div>`;
+  } else {
+    if(!v('team-name')){ err('team-name','يرجى إدخال اسم الفريق'); return; }
+    if(!mCount){ alert('يرجى اختيار عدد الأعضاء المسجَّلين حاليًا'); return; }
+    document.getElementById('p2-title').textContent='بيانات الأعضاء';
+    let html='';
+    const names=['','الأول','الثاني','الثالث','الرابع'];
+    for(let i=1;i<=mCount;i++){
+      const lead = i===1;
+      html += `<div class="member-card ${lead?'leader':''}" style="animation-delay:${(i-1)*0.08}s">
+        <div class="member-num">العضو ${names[i]} ${lead?'<span class="chip">قائد الفريق 👑</span>':''}</div>
+        ${memberFieldsHTML(i, lead, lead)}
+      </div>`;
+    }
+    if(mCount < 4){
+      html += `<div class="complete-note">
+        <span>💡</span>
+        <span>بقي ${4-mCount} ${4-mCount===1?'عضو':'أعضاء'} حتى يكتمل الفريق — سيتم تكملة العدد الناقص.</span>
+      </div>`;
+    }
+    document.getElementById('members-container').innerHTML=html;
+  }
+  goTo(2);
+}
+
+function goToPage3() {
+  document.querySelectorAll('.error').forEach(e=>e.classList.remove('error'));
+  for(let i=1;i<=mCount;i++){
+    if(!v(`m${i}-name`)){ err(`m${i}-name`,`يرجى إدخال الاسم`); return; }
+    if(!v(`m${i}-num`)){  err(`m${i}-num`, `يرجى إدخال الرقم الجامعي`); return; }
+    if(i===1 && !v(`m${i}-email`)){ err(`m${i}-email`,'يرجى إدخال البريد الإلكتروني'); return; }
+    if(!v(`m${i}-phone`)){ err(`m${i}-phone`,`يرجى إدخال رقم الهاتف`); return; }
+  }
+
+  let html='';
+  if(pType==='team'){
+    html+=`<div style="background:#eef4ff;border-radius:10px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+      <div><div style="font-size:11px;color:#4285F4;font-weight:700;margin-bottom:2px">اسم الفريق</div><div style="font-size:16px;font-weight:700">${v('team-name')}</div></div>
+    </div>`;
+    if(mCount < 4){
+      html += `<div class="complete-note" style="margin-bottom:14px;"><span>💡</span><span>سجّلتوا ${mCount} من ٤، وسيتم تكملة العدد الناقص.</span></div>`;
+    }
+  } else {
+    html+=`<div style="background:#f2fbf5;border-radius:10px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+      <div><div style="font-size:11px;color:#34A853;font-weight:700;margin-bottom:2px">نوع التسجيل</div><div style="font-size:16px;font-weight:700">فردي — رح تنضم لفريق</div></div>
+    </div>
+    <div style="background:#eef4ff;border-radius:10px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+      <div><div style="font-size:11px;color:#4285F4;font-weight:700;margin-bottom:2px">اسم الفريق</div><div style="font-size:16px;font-weight:700">${v('solo-team-name')}</div></div>
+    </div>`;
+  }
+
+  const names=['','الأول','الثاني','الثالث','الرابع'];
+  for(let i=1;i<=mCount;i++){
+    const lead = i===1 && pType==='team';
+    html+=`<div style="border:1.5px solid ${lead?'#4285F4':'#e2e2da'};border-radius:10px;padding:14px 16px;margin-bottom:10px;${lead?'background:#f8fafe':''}">
+      ${pType==='team'?`<div style="font-size:11px;color:#4285F4;font-weight:700;margin-bottom:10px">العضو ${names[i]} ${lead?'— قائد الفريق':''}</div>`:''}
+      <table style="width:100%;font-size:13px;border-collapse:collapse">
+        <tr><td style="color:#8b8d7f;padding:4px 0;width:110px">الاسم</td><td style="font-weight:600">${v('m'+i+'-name')}</td></tr>
+        <tr><td style="color:#8b8d7f;padding:4px 0">الرقم الجامعي</td><td style="direction:ltr;text-align:right">${v('m'+i+'-num')}</td></tr>
+        <tr><td style="color:#8b8d7f;padding:4px 0">الإيميل</td><td style="direction:ltr;text-align:right">${v('m'+i+'-email')||'—'}</td></tr>
+        <tr><td style="color:#8b8d7f;padding:4px 0">واتساب</td><td style="direction:ltr;text-align:right">+${document.getElementById('m'+i+'-prefix')?.value||'970'}${v('m'+i+'-phone')}</td></tr>
+      </table>
+    </div>`;
+  }
+  document.getElementById('review-content').innerHTML=html;
+  goTo(3);
+}
+
+function launchConfetti() {
+  const wrap = document.getElementById('confetti-wrap');
+  const colors = ['#4285F4','#EA4335','#FBBC05','#34A853'];
+  wrap.innerHTML = '';
+  for(let i=0;i<26;i++){
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    const angle = Math.random()*Math.PI*2;
+    const dist = 90 + Math.random()*130;
+    const dx = Math.cos(angle)*dist;
+    const dy = Math.sin(angle)*dist - 40;
+    const rot = Math.random()*520 - 260;
+    p.style.background = colors[i % colors.length];
+    p.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+    p.style.setProperty('--dx', dx+'px');
+    p.style.setProperty('--dy', dy+'px');
+    p.style.setProperty('--rot', rot+'deg');
+    p.style.animation = `confettiBurst ${0.9 + Math.random()*0.5}s cubic-bezier(.2,.7,.3,1) ${Math.random()*0.15}s both`;
+    wrap.appendChild(p);
+  }
+}
+
+const styleSheet = document.createElement('style');
+styleSheet.textContent = `
+@keyframes confettiBurst {
+  0% { opacity: 1; transform: translate(-50%,-50%) translate(0,0) rotate(0deg); }
+  100% { opacity: 0; transform: translate(-50%,-50%) translate(var(--dx), var(--dy)) rotate(var(--rot)); }
+}`;
+document.head.appendChild(styleSheet);
+
+async function submitForm() {
+  const btn = document.querySelector('#page3 .btn-primary');
+  btn.disabled = true;
+  btn.textContent = '⏳ جارٍ الإرسال...';
+
+  const members = [];
+  for(let i=1;i<=mCount;i++){
+    members.push({
+      name:  v('m'+i+'-name'),
+      num:   v('m'+i+'-num'),
+      email: v('m'+i+'-email')||'—',
+      phone: '+' + (document.getElementById('m'+i+'-prefix')?.value||'970') + v('m'+i+'-phone')
+    });
+  }
+
+  const payload = {
+    type: pType,
+    teamName: pType==='team' ? v('team-name') : v('solo-team-name'),
+    membersProvided: mCount,
+    needsTeamAssignment: pType==='solo',
+    needsCompletion: pType==='team' && mCount < 4 || pType==="solo",
+    missingMembers: pType==='team' ? Math.max(0, 4-mCount) : 3,
+    members
+  };
+
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPwf5-v8FYZmed3LuSdkf1ROcfHXniPRP5yZPgRK6-Jv5GCVfrxgHBzSCqhEjcmq593A/exec'; 
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify(payload)
+    });
+  } catch(err) {
+    console.error(err);
+  }
+
+  document.querySelectorAll('.form-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('trail-bar').style.display='none';
+  document.getElementById('success').style.display='block';
+  launchConfetti();
+
+  if(pType==='solo'){
+    document.getElementById('success-sub').innerHTML = `تسجّلت بنجاح باسم <strong>${v('m1-name')}</strong> ضمن فريق <strong>${v('solo-team-name')}</strong>.<br/>سيتم تكملة العدد الناقص والتواصل معك بالتفاصيل قريبًا.`;
+    document.getElementById('success-label').textContent = `🧭 ${v('m1-name')} — فريق: ${v('solo-team-name')}`;
+  } else {
+    const remain = 4-mCount;
+    document.getElementById('success-sub').innerHTML = remain>0
+      ? `تم تسجيل فريقكم <strong>${v('team-name')}</strong> بـ ${mCount} من ٤ أعضاء.<br/>سيتم تكملة العدد الناقص والتواصل معكم قريبًا.`
+      : `تم تسجيل فريقكم <strong>${v('team-name')}</strong> بكامل أعضائه (٤).`;
+    document.getElementById('success-label').textContent = `👥 فريق: ${v('team-name')}`;
+  }
+}
+</script>
+</body>
+</html>
